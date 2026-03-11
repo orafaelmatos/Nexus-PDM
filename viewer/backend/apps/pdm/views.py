@@ -94,3 +94,31 @@ class DocumentViewSet(viewsets.ModelViewSet):
         
         files = PDMService.list_project_files(project)
         return Response(files)
+
+    @decorators.action(detail=True, methods=['post'], url_path='checkout')
+    def checkout(self, request, pk=None):
+        documento = self.get_object()
+        if documento.is_checked_out:
+            return Response({"error": "File already checked out"}, status=status.HTTP_400_BAD_REQUEST)
+        
+        from django.utils import timezone
+        documento.is_checked_out = True
+        documento.checked_out_by = request.user
+        documento.checkout_at = timezone.now()
+        documento.save()
+        return Response(DocumentSerializer(documento).data)
+
+    @decorators.action(detail=True, methods=['post'], url_path='undo-checkout')
+    def undo_checkout(self, request, pk=None):
+        documento = self.get_object()
+        if not documento.is_checked_out:
+            return Response({"error": "File not checked out"}, status=status.HTTP_400_BAD_REQUEST)
+        
+        if documento.checked_out_by != request.user and not request.user.is_staff:
+             return Response({"error": "Not authorized"}, status=status.HTTP_403_FORBIDDEN)
+
+        documento.is_checked_out = False
+        documento.checked_out_by = None
+        documento.checkout_at = None
+        documento.save()
+        return Response(DocumentSerializer(documento).data)

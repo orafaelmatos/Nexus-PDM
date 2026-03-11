@@ -7,6 +7,7 @@
         <Grid.RowDefinitions>
             <RowDefinition Height="Auto"/>
             <RowDefinition Height="*"/>
+            <RowDefinition Height="Auto"/>
         </Grid.RowDefinitions>
 
         <!-- Top Bar -->
@@ -21,14 +22,6 @@
                         Background="Transparent"
                         BorderBrush="Transparent">
                     <TextBlock Text="" FontFamily="Segoe MDL2 Assets" FontSize="14"/>
-                </Button>
-                <Button x:Name="OpenFolderButton" 
-                        Click="OpenFolder_Click"
-                        Padding="5,0"
-                        Margin="5,0,0,0"
-                        Background="Transparent"
-                        BorderBrush="Transparent">
-                    <TextBlock Text="" FontFamily="Segoe MDL2 Assets" FontSize="14"/>
                 </Button>
             </StackPanel>
 
@@ -45,9 +38,26 @@
                 <Style TargetType="TreeViewItem">
                     <Setter Property="Padding" Value="0,2"/>
                     <Setter Property="IsExpanded" Value="True"/>
+                    <Setter Property="HorizontalContentAlignment" Value="Stretch"/>
                 </Style>
             </TreeView.ItemContainerStyle>
         </TreeView>
+
+        <!-- Commit Area -->
+        <StackPanel Grid.Row="2" Margin="5">
+            <TextBox x:Name="CommitMessage" 
+                     Height="60" 
+                     AcceptsReturn="True" 
+                     Tag="Commit message..."
+                     Margin="0,0,0,5"
+                     VerticalScrollBarVisibility="Auto"/>
+            <Button x:Name="CheckInButton" 
+                    Content="Check-In" 
+                    Padding="10,5" 
+                    Click="CheckIn_Click"
+                    Background="#007ACC"
+                    Foreground="White"/>
+        </StackPanel>
 
         <!-- Loading Overlay -->
         <Grid x:Name="LoadingOverlay"

@@ -3,6 +3,7 @@ using System.Linq;
 using System.Threading.Tasks;
 using System.Windows;
 using System.Windows.Controls;
+using System.Collections.Generic;
 
 namespace GestorAddin.UI
 {
@@ -92,14 +93,6 @@ namespace GestorAddin.UI
             }
         }
 
-        private void ShowLoading(bool show)
-        {
-            if (LoadingOverlay != null)
-                LoadingOverlay.Visibility = show
-                    ? Visibility.Visible
-                    : Visibility.Collapsed;
-        }
-
         private void LoadChangesTree(string rootPath)
         {
             if (ChangesTree == null) return;
@@ -107,14 +100,15 @@ namespace GestorAddin.UI
 
             var rootItem = new TreeViewItem
             {
-                Header = CreateChangeHeader("Changes", false),
+                Header = CreateChangeHeader("Changes (Mock)", false),
                 IsExpanded = true
             };
 
             var dir = new DirectoryInfo(rootPath);
             if (dir.Exists)
             {
-                foreach (var file in dir.GetFiles("*", SearchOption.AllDirectories).Take(10))
+                // Simple mock for changes view
+                foreach (var file in dir.GetFiles("*", SearchOption.AllDirectories).Take(5))
                 {
                     var fileItem = new TreeViewItem
                     {
@@ -127,6 +121,57 @@ namespace GestorAddin.UI
             }
 
             ChangesTree.Items.Add(rootItem);
+        }
+
+        private void CheckIn_Click(object sender, RoutedEventArgs e)
+        {
+            if (ProjectCombo.SelectedItem == null)
+            {
+                MessageBox.Show("Please select a project first.");
+                return;
+            }
+
+            if (string.IsNullOrWhiteSpace(CommitMessage.Text))
+            {
+                MessageBox.Show("Please enter a commit message.");
+                return;
+            }
+
+            MessageBox.Show($"Check-In successful with message: {CommitMessage.Text}\n(Mock implementation)", 
+                            "Check-In", 
+                            MessageBoxButton.OK, 
+                            MessageBoxImage.Information);
+
+            CommitMessage.Clear();
+        }
+
+        private void ShowLoading(bool show)
+        {
+            if (LoadingOverlay != null)
+                LoadingOverlay.Visibility = show
+                    ? Visibility.Visible
+                    : Visibility.Collapsed;
+        }
+
+        private FrameworkElement CreateChangeHeader(string text, bool isFile)
+        {
+            var dock = new DockPanel { LastChildFill = true };
+            var cb = new CheckBox { Margin = new Thickness(0, 0, 5, 0), VerticalAlignment = VerticalAlignment.Center, IsChecked = true };
+            DockPanel.SetDock(cb, Dock.Left);
+            dock.Children.Add(cb);
+
+            if (isFile)
+            {
+                var fileContent = CreateFileHeader(text, true);
+                dock.Children.Add(fileContent);
+            }
+            else
+            {
+                var label = new TextBlock { Text = text, VerticalAlignment = VerticalAlignment.Center, FontWeight = FontWeights.Bold };
+                dock.Children.Add(label);
+            }
+
+            return dock;
         }
 
         private UIElement CreateFileHeader(string fileName, bool isCheckedOut = true)
@@ -155,27 +200,6 @@ namespace GestorAddin.UI
                 FontWeight = isCheckedOut ? FontWeights.Bold : FontWeights.Normal
             };
             dock.Children.Add(text);
-
-            return dock;
-        }
-
-        private FrameworkElement CreateChangeHeader(string text, bool isFile)
-        {
-            var dock = new DockPanel { LastChildFill = true };
-            var cb = new CheckBox { Margin = new Thickness(0, 0, 5, 0), VerticalAlignment = VerticalAlignment.Center, IsChecked = true };
-            DockPanel.SetDock(cb, Dock.Left);
-            dock.Children.Add(cb);
-
-            if (isFile)
-            {
-                var fileContent = CreateFileHeader(text, true); // Changes are usually "checked out" or modified
-                dock.Children.Add(fileContent);
-            }
-            else
-            {
-                var label = new TextBlock { Text = text, VerticalAlignment = VerticalAlignment.Center, FontWeight = FontWeights.Bold };
-                dock.Children.Add(label);
-            }
 
             return dock;
         }

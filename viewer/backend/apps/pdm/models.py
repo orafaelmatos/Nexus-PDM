@@ -10,6 +10,17 @@ class Document(models.Model):
     criado_em = models.DateTimeField(auto_now_add=True)
     tipo = models.CharField(max_length=50) # CAD, PDF, etc
 
+    # Checkout fields
+    is_checked_out = models.BooleanField(default=False)
+    checked_out_by = models.ForeignKey(
+        settings.AUTH_USER_MODEL, 
+        on_delete=models.SET_NULL, 
+        null=True, 
+        blank=True, 
+        related_name='checked_out_documents'
+    )
+    checkout_at = models.DateTimeField(null=True, blank=True)
+
     class Meta:
         verbose_name = 'Documento'
         verbose_name_plural = 'Documentos'

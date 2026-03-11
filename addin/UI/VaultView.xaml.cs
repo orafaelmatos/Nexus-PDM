@@ -161,33 +161,6 @@ namespace GestorAddin.UI
             }
         }
 
-        private StackPanel CreateMenuHeader(string glyph, string text)
-        {
-            var panel = new StackPanel
-            {
-                Orientation = Orientation.Horizontal
-            };
-
-            var icon = new TextBlock
-            {
-                Text = glyph,
-                FontFamily = new System.Windows.Media.FontFamily("Segoe MDL2 Assets"),
-                Margin = new Thickness(0, 0, 8, 0),
-                VerticalAlignment = VerticalAlignment.Center
-            };
-
-            var label = new TextBlock
-            {
-                Text = text,
-                VerticalAlignment = VerticalAlignment.Center
-            };
-
-            panel.Children.Add(icon);
-            panel.Children.Add(label);
-
-            return panel;
-        }
-
         private void UndoCheckOut_Click(object sender, RoutedEventArgs e)
         {
             if (sender is MenuItem menuItem &&
@@ -206,8 +179,8 @@ namespace GestorAddin.UI
             var filePath = GetFilePathFromMenu(sender);
             if (filePath == null) return;
 
-            MessageBox.Show($"Viewing in Sibe:\n{filePath}",
-                            "Sibe View",
+            MessageBox.Show($"Viewing in Gestor:\n{filePath}",
+                            "Gestor View",
                             MessageBoxButton.OK,
                             MessageBoxImage.Information);
         }
@@ -216,7 +189,7 @@ namespace GestorAddin.UI
         {
             var item = new TreeViewItem
             {
-                Header = dir.Name,
+                Header = CreateFolderHeader(dir.Name),
                 Tag = dir.FullName
             };
 
@@ -236,43 +209,45 @@ namespace GestorAddin.UI
                     HorizontalContentAlignment = HorizontalAlignment.Stretch
                 };
 
-                var contextMenu = new ContextMenu();
-
-                // --- Check-Out ---
-                var checkOutMenuItem = new MenuItem();
-                checkOutMenuItem.Click += CheckOut_Click;
-
-                checkOutMenuItem.Header = CreateMenuHeader("", "Check-Out");
-                contextMenu.Items.Add(checkOutMenuItem);
-
-                // --- Undo Check-Out ---
-                var undoCheckOutMenuItem = new MenuItem();
-                undoCheckOutMenuItem.Click += UndoCheckOut_Click;
-
-                undoCheckOutMenuItem.Header = CreateMenuHeader("", "Undo Check-Out");
-                contextMenu.Items.Add(undoCheckOutMenuItem);
-
-                contextMenu.Items.Add(new Separator());
-
-                // --- Open File ---
-                var openFileMenuItem = new MenuItem();
-                openFileMenuItem.Click += OpenFile_Click;
-
-                openFileMenuItem.Header = CreateMenuHeader("", "Open File");
-                contextMenu.Items.Add(openFileMenuItem);
-
-                // --- View in Sibe ---
+                // Use the context menu from XAML resources
+                fileItem.ContextMenu = (ContextMenu)FolderTree.Resources["FileContextMenu"];
+                
+                // Add "View in Gestor" dynamically as requested
                 var sibeMenuItem = new MenuItem();
                 sibeMenuItem.Click += ViewInSibe_Click;
-                sibeMenuItem.Header = CreateMenuHeader("", "View in Gestor");
-                contextMenu.Items.Add(sibeMenuItem);
-
-                fileItem.ContextMenu = contextMenu;
+                sibeMenuItem.Header = "View in Gestor";
+                sibeMenuItem.Icon = new TextBlock { Text = "", FontFamily = new System.Windows.Media.FontFamily("Segoe MDL2 Assets") };
+                
+                if (fileItem.ContextMenu != null)
+                {
+                    // Avoid duplicate Gestor entries
+                    if (!fileItem.ContextMenu.Items.OfType<MenuItem>().Any(m => m.Header?.ToString() == "View in Gestor"))
+                    {
+                        fileItem.ContextMenu.Items.Add(sibeMenuItem);
+                    }
+                }
 
                 item.Items.Add(fileItem);
             }
 
             return item;
+        }
+
+        private UIElement CreateFolderHeader(string folderName)
+        {
+            var stack = new StackPanel { Orientation = Orientation.Horizontal };
+            var icon = new TextBlock
+            {
+                Text = "",
+                FontFamily = new System.Windows.Media.FontFamily("Segoe MDL2 Assets"),
+                Margin = new Thickness(0, 0, 8, 0),
+                VerticalAlignment = VerticalAlignment.Center,
+                Foreground = System.Windows.Media.Brushes.Goldenrod
+            };
+            var text = new TextBlock { Text = folderName, VerticalAlignment = VerticalAlignment.Center };
+            stack.Children.Add(icon);
+            stack.Children.Add(text);
+            return stack;
         }
 
 
@@ -298,4 +273,4 @@ namespace GestorAddin.UI
         }
     }
 
-    }
+}

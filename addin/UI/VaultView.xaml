@@ -42,9 +42,30 @@
                   Grid.Row="2"
                   BorderBrush="#DDD"
                   Margin="5,0,5,5">
+            <TreeView.Resources>
+                <ContextMenu x:Key="FileContextMenu">
+                    <MenuItem Header="Check-Out" Click="CheckOut_Click">
+                        <MenuItem.Icon>
+                            <TextBlock Text="" FontFamily="Segoe MDL2 Assets" VerticalAlignment="Center"/>
+                        </MenuItem.Icon>
+                    </MenuItem>
+                    <MenuItem Header="Undo Check-Out" Click="UndoCheckOut_Click">
+                        <MenuItem.Icon>
+                            <TextBlock Text="" FontFamily="Segoe MDL2 Assets" VerticalAlignment="Center"/>
+                        </MenuItem.Icon>
+                    </MenuItem>
+                    <Separator/>
+                    <MenuItem Header="Open File" Click="OpenFile_Click">
+                        <MenuItem.Icon>
+                            <TextBlock Text="" FontFamily="Segoe MDL2 Assets" VerticalAlignment="Center"/>
+                        </MenuItem.Icon>
+                    </MenuItem>
+                </ContextMenu>
+            </TreeView.Resources>
             <TreeView.ItemContainerStyle>
                 <Style TargetType="TreeViewItem">
                     <Setter Property="Padding" Value="0,2"/>
+                    <Setter Property="HorizontalContentAlignment" Value="Stretch"/>
                 </Style>
             </TreeView.ItemContainerStyle>
         </TreeView>
